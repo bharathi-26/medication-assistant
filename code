@@ -1,0 +1,144 @@
+#define BLYNK_PRINT Serial
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <BlynkSimpleEsp32.h>
+
+#include <Servo.h>
+
+static const int servoPin1 = 23;
+static const int servoPin2 = 22;
+
+Servo servo1;
+Servo servo2;
+
+// defines pins numbers
+const int trigPin = 2;
+const int echoPin = 5;
+// defines variables
+long duration;
+int distance;
+
+// You should get Auth Token in the Blynk App.
+// Go to the Project Settings (nut icon).
+char auth[] = "kLpkYGH2_ycYk9x2eFj-ZOBhNLStIhVF";
+
+// Your WiFi credentials.
+// Set password to "" for open networks.
+char ssid[] = "vivo 1610";
+char pass[] = "incorrect";
+
+int pinValue1;
+int pinValue2;
+
+int buzzer=21;
+
+void setup()
+{
+  // Debug console
+pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
+pinMode(echoPin, INPUT); // Sets the echoPin as an Input
+Serial.begin(9600);// Starts the serial communication
+pinMode(34,OUTPUT);
+pinMode(35,OUTPUT);
+pinMode(18,OUTPUT);
+pinMode(15,OUTPUT);
+pinMode(buzzer,OUTPUT);
+
+servo1.attach(servoPin1); 
+servo1.write(0);
+servo2.attach(servoPin2); 
+servo2.write(0);
+
+    digitalWrite(18,LOW);
+    digitalWrite(15,LOW);
+    digitalWrite(buzzer,LOW);
+       
+  Blynk.begin(auth, ssid, pass);
+}
+
+void loop()
+{
+  Blynk.run();
+  
+  pinValue1 = digitalRead(34);
+  pinValue2 = digitalRead(35);
+  
+    Serial.println("1st");
+  Serial.println(pinValue1);
+    Serial.println("2nd");
+  Serial.println(pinValue1);  
+// Clears the trigPin
+digitalWrite(trigPin, LOW);
+delayMicroseconds(2);
+// Sets the trigPin on HIGH state for 10 micro seconds
+digitalWrite(trigPin, HIGH);
+delayMicroseconds(10);
+digitalWrite(trigPin, LOW);
+// Reads the echoPin, returns the sound wave travel time in microseconds
+duration = pulseIn(echoPin, HIGH);
+// Calculating the distance
+distance= duration*0.034/2;
+// Prints the distance on the Serial Monitor
+Serial.print("Distance: ");
+Serial.println(distance);
+char box = Serial.read();
+ /*
+  if(pinValue1 == 1 || pinValue2 == 1  || box =='a' || box =='b'){
+       digitalWrite(buzzer,HIGH);
+ }
+*/
+  if( pinValue1 == '1' || box == 'a'){
+      digitalWrite(18,HIGH);
+       digitalWrite(buzzer,HIGH);digitalWrite(trigPin, LOW);
+
+       delay(5000);
+       delayMicroseconds(2);
+// Sets the trigPin on HIGH state for 10 micro seconds
+digitalWrite(trigPin, HIGH);
+delayMicroseconds(10);
+digitalWrite(trigPin, LOW);
+// Reads the echoPin, returns the sound wave travel time in microseconds
+duration = pulseIn(echoPin, HIGH);
+        distance= duration*0.034/2;
+      
+      
+     if (distance <=14){
+       servo1.write(180);
+        digitalWrite(buzzer,LOW);
+       Serial.println("opening 1nd box");
+    }
+        }
+    else if ( pinValue2 == '1' || box == 'b'){
+     digitalWrite(15,HIGH);
+      digitalWrite(buzzer,HIGH);
+       
+    digitalWrite(trigPin, LOW);
+
+    delay(5000);
+    delayMicroseconds(2);
+// Sets the trigPin on HIGH state for 10 micro seconds
+digitalWrite(trigPin, HIGH);
+delayMicroseconds(10);
+digitalWrite(trigPin, LOW);
+// Reads the echoPin, returns the sound wave travel time in microseconds
+duration = pulseIn(echoPin, HIGH);
+ distance= duration*0.034/2;
+    
+      
+     if (distance <=14){
+      servo2.write(180);
+        digitalWrite(buzzer,LOW);
+       Serial.println("opening 2nd box");
+     }
+    }
+if(distance >=14)
+  {
+      servo1.write(0);
+      servo2.write(0);
+       digitalWrite(18,LOW);
+       digitalWrite(15,LOW);
+       digitalWrite(buzzer,LOW);
+ 
+    }
+delay(1000);
+}
